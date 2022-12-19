@@ -5,7 +5,7 @@ use quick_xml::{
   Reader,
 };
 
-use crate::{Color, UnsafeAsStr};
+use crate::{Color, QuickXmlAsStr};
 
 #[derive(Debug, Clone, Default)]
 pub struct Theme<'a> {
@@ -48,6 +48,34 @@ pub struct ThemeAttribute<'a> {
   pub font_type: FontType,
 }
 
+impl<'a> ThemeAttribute<'a> {
+  fn set(&mut self, key: &str, value: &'a str) {
+    match key {
+      "BACKGROUND" => self.background = Some(Color::from(value)),
+      "FOREGROUND" => self.foreground = Some(Color::from(value)),
+      "FONT_TYPE" => {
+        self.font_type = value
+          .parse::<u32>()
+          .map(FontType::n)
+          .ok()
+          .flatten()
+          .unwrap_or_default();
+      }
+      "EFFECT_TYPE" => {
+        self.effect_type = value
+          .parse::<u32>()
+          .map(EffectType::n)
+          .ok()
+          .flatten()
+          .unwrap_or_default();
+      }
+      "EFFECT_COLOR" => self.effect_color = Some(Color::from(value)),
+      "ERROR_STRIPE_COLOR" => self.error_stripe_color = Some(Color::from(value)),
+      _ => {}
+    }
+  }
+}
+
 pub struct ThemeReader<'a> {
   _src: &'a str,
   in_colors: bool,
@@ -55,6 +83,11 @@ pub struct ThemeReader<'a> {
   attribute: Option<ThemeAttribute<'a>>,
   option: Option<&'a str>,
   reader: Reader<&'a [u8]>,
+}
+
+pub enum ThemeEvent<'a> {
+  Color(&'a str, Color<'a>),
+  Attribute(&'a str, ThemeAttribute<'a>),
 }
 
 impl<'a> ThemeReader<'a> {
@@ -77,7 +110,7 @@ impl<'a> ThemeReader<'a> {
         b"option" if self.in_attributes => unsafe {
           let Attribute { value: name, .. } = e.try_get_attribute(b"name").ok()??;
 
-          self.option = Some(name.as_str_unchecked());
+          self.option = Some(name.as_str());
           self.attribute = Some(ThemeAttribute::default());
         },
         _ => {}
@@ -97,8 +130,8 @@ impl<'a> ThemeReader<'a> {
           let Attribute { value: name, .. } = e.try_get_attribute(b"name").ok()??;
           let Attribute { value: color, .. } = e.try_get_attribute(b"value").ok()??;
 
-          let name = name.as_str_unchecked();
-          let color = color.as_str_unchecked();
+          let name = name.as_str();
+          let color = color.as_str();
 
           return Some(Some(ThemeEvent::Color(name, Color::from(color))));
         },
@@ -107,21 +140,10 @@ impl<'a> ThemeReader<'a> {
             let Attribute { value: key, .. } = e.try_get_attribute(b"name").ok()??;
             let Attribute { value, .. } = e.try_get_attribute(b"value").ok()??;
 
-            let value = value.as_str_unchecked();
+            let key = key.as_str();
+            let value = value.as_str();
 
-            match key.as_ref() {
-              b"BACKGROUND" => attribute.background = Some(Color::from(value)),
-              b"FOREGROUND" => attribute.foreground = Some(Color::from(value)),
-              b"FONT_TYPE" => {
-                attribute.font_type = value.parse::<u32>().map(FontType::n).ok()??
-              }
-              b"EFFECT_TYPE" => {
-                attribute.effect_type = value.parse::<u32>().map(EffectType::n).ok()??
-              }
-              b"EFFECT_COLOR" => attribute.effect_color = Some(Color::from(value)),
-              b"ERROR_STRIPE_COLOR" => attribute.error_stripe_color = Some(Color::from(value)),
-              _ => {}
-            }
+            attribute.set(key, value);
           }
         },
         _ => {}
@@ -146,11 +168,6 @@ impl<'a> Iterator for ThemeReader<'a> {
       }
     }
   }
-}
-
-pub enum ThemeEvent<'a> {
-  Color(&'a str, Color<'a>),
-  Attribute(&'a str, ThemeAttribute<'a>),
 }
 
 impl<'a> Theme<'a> {

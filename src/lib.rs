@@ -64,26 +64,26 @@ fn hex(str: &str) -> Option<[u8; 4]> {
   }
 }
 
-pub(crate) trait UnsafeAsStr<'a, 'b: 'a> {
+pub(crate) trait QuickXmlAsStr<'a, 'b: 'a> {
   /// # Safety
   ///
   /// quick_xml for whatever reason uses `&[u8]` instead of `&str`
   /// so this converts them back to `&str`
   /// but the problem is lifetimes and borrowing
   /// so there is literally no way to guarantee safety (like [std::str::from_utf8])
-  unsafe fn as_str_unchecked(&'a self) -> &'b str;
+  unsafe fn as_str(&'a self) -> &'b str;
 }
 
-impl<'a, 'b: 'a> UnsafeAsStr<'a, 'b> for Cow<'a, [u8]> {
+impl<'a, 'b: 'a> QuickXmlAsStr<'a, 'b> for Cow<'a, [u8]> {
   #[allow(clippy::transmute_bytes_to_str)]
-  unsafe fn as_str_unchecked(&'a self) -> &'b str {
+  unsafe fn as_str(&'a self) -> &'b str {
     std::mem::transmute(self.as_ref())
   }
 }
 
-impl<'a, 'b: 'a> UnsafeAsStr<'a, 'b> for QName<'a> {
+impl<'a, 'b: 'a> QuickXmlAsStr<'a, 'b> for QName<'a> {
   #[allow(clippy::transmute_bytes_to_str)]
-  unsafe fn as_str_unchecked(&'a self) -> &'b str {
+  unsafe fn as_str(&'a self) -> &'b str {
     std::mem::transmute(self.as_ref())
   }
 }
