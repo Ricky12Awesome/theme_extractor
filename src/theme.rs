@@ -4,12 +4,12 @@ use quick_xml::{
   Reader,
 };
 
-use crate::{Color, QuickXmlAsStr};
+use crate::{mappings::Mappings, Color, QuickXmlAsStr};
 
 #[derive(Debug, Clone, Default)]
-pub struct Theme<'a> {
+pub struct JBColorScheme<'a> {
   pub colors: IndexMap<&'a str, Color<'a>>,
-  pub attributes: IndexMap<&'a str, ThemeAttribute<'a>>,
+  pub attributes: IndexMap<&'a str, JBAttribute<'a>>,
 }
 
 #[derive(Debug, Clone, Copy, Default, enumn::N)]
@@ -38,7 +38,7 @@ pub enum EffectType {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct ThemeAttribute<'a> {
+pub struct JBAttribute<'a> {
   pub foreground: Option<Color<'a>>,
   pub background: Option<Color<'a>>,
   pub effect_color: Option<Color<'a>>,
@@ -47,7 +47,7 @@ pub struct ThemeAttribute<'a> {
   pub font_type: FontType,
 }
 
-impl<'a> ThemeAttribute<'a> {
+impl<'a> JBAttribute<'a> {
   fn set(&mut self, key: &str, value: &'a str) {
     match key {
       "BACKGROUND" => self.background = Some(Color::from(value)),
@@ -75,21 +75,21 @@ impl<'a> ThemeAttribute<'a> {
   }
 }
 
-pub struct ThemeReader<'a> {
+pub struct JBColorSchemeReader<'a> {
   _src: &'a str,
   in_colors: bool,
   in_attributes: bool,
-  attribute: Option<ThemeAttribute<'a>>,
+  attribute: Option<JBAttribute<'a>>,
   option: Option<&'a str>,
   reader: Reader<&'a [u8]>,
 }
 
-pub enum ThemeEvent<'a> {
+pub enum JBColorSchemeType<'a> {
   Color(&'a str, Color<'a>),
-  Attribute(&'a str, ThemeAttribute<'a>),
+  Attribute(&'a str, JBAttribute<'a>),
 }
 
-impl<'a> ThemeReader<'a> {
+impl<'a> JBColorSchemeReader<'a> {
   /// because of lifetime, can't use trait
   #[allow(clippy::should_implement_trait)]
   pub fn from_str(_src: &'a str) -> Self {
@@ -103,7 +103,7 @@ impl<'a> ThemeReader<'a> {
     }
   }
 
-  fn handle_event(&mut self, event: Event) -> Option<Option<ThemeEvent<'a>>> {
+  fn handle_event(&mut self, event: Event) -> Option<Option<JBColorSchemeType<'a>>> {
     match event {
       Event::Start(e) => match e.name().as_ref() {
         b"colors" => self.in_colors = true,
@@ -112,7 +112,7 @@ impl<'a> ThemeReader<'a> {
           let Attribute { value: name, .. } = e.try_get_attribute(b"name").ok()??;
 
           self.option = Some(name.as_str());
-          self.attribute = Some(ThemeAttribute::default());
+          self.attribute = Some(JBAttribute::default());
         },
         _ => {}
       },
@@ -121,7 +121,7 @@ impl<'a> ThemeReader<'a> {
         b"attributes" => self.in_attributes = false,
         b"option" if self.in_attributes => {
           if let (Some(name), Some(attribute)) = (self.option.take(), self.attribute.take()) {
-            return Some(Some(ThemeEvent::Attribute(name, attribute)));
+            return Some(Some(JBColorSchemeType::Attribute(name, attribute)));
           }
         }
         _ => {}
@@ -134,7 +134,7 @@ impl<'a> ThemeReader<'a> {
           let name = name.as_str();
           let color = color.as_str();
 
-          return Some(Some(ThemeEvent::Color(name, Color::from(color))));
+          return Some(Some(JBColorSchemeType::Color(name, Color::from(color))));
         },
         b"option" if self.in_attributes => unsafe {
           if let Some(attribute) = &mut self.attribute {
@@ -157,8 +157,8 @@ impl<'a> ThemeReader<'a> {
   }
 }
 
-impl<'a> Iterator for ThemeReader<'a> {
-  type Item = ThemeEvent<'a>;
+impl<'a> Iterator for JBColorSchemeReader<'a> {
+  type Item = JBColorSchemeType<'a>;
 
   fn next(&mut self) -> Option<Self::Item> {
     loop {
@@ -171,21 +171,42 @@ impl<'a> Iterator for ThemeReader<'a> {
   }
 }
 
-impl<'a> Theme<'a> {
+impl<'a> JBColorScheme<'a> {
   pub fn parse(str: &'a str) -> anyhow::Result<Self> {
     let mut theme = Self::default();
 
-    for e in ThemeReader::from_str(str) {
+    for e in JBColorSchemeReader::from_str(str) {
       match e {
-        ThemeEvent::Color(name, color) => {
+        JBColorSchemeType::Color(name, color) => {
           theme.colors.insert(name, color);
         }
-        ThemeEvent::Attribute(option, value) => {
+        JBColorSchemeType::Attribute(option, value) => {
           theme.attributes.insert(option, value);
         }
       }
     }
 
     Ok(theme)
+  }
+
+  pub fn get_attribute(&'a self, mappings: &Mappings, name: &str) -> Option<&'a JBAttribute<'a>> {
+    let (&name, _) = mappings
+      .attributes
+      .iter()
+      .find(|(_, possible_names)| possible_names.contains(&name))?;
+
+    self.attributes.get(name)
+  }
+
+  pub fn get_attribute_fg(&'a self, mappings: &Mappings, name: &str) -> Option<Color<'a>> {
+    self.get_attribute(mappings, name)?.foreground
+  }
+
+  pub fn get_attributes_fg_unwrap<const N: usize>(
+    &'a self,
+    mappings: &Mappings,
+    names: [&str; N],
+  ) -> [Color<'a>; N] {
+    names.map(|name| self.get_attribute_fg(mappings, name).expect(name))
   }
 }

@@ -2,75 +2,83 @@
   "colors": {
     "ADDED_LINES_COLOR": null,
     "ANNOTATIONS_COLOR": null,
-    "BookmarkIcon.background":  null,
+    "BookmarkIcon.background": null,
     "CARET_COLOR": null,
-    "CARET_ROW_COLOR":  null,
+    "CARET_ROW_COLOR": null,
     "CONSOLE_BACKGROUND_KEY": null,
-    "DELETED_LINES_COLOR":  null,
+    "DELETED_LINES_COLOR": null,
     "DIFF_SEPARATORS_BACKGROUND": null,
-    "DOCUMENTATION_COLOR":  null,
+    "DOCUMENTATION_COLOR": null,
     "ERROR_HINT": null,
-    "FOLDED_TEXT_BORDER_COLOR":  null,
-    "GUTTER_BACKGROUND": null,
-    "HTML_TAG_TREE_LEVEL0":  null,
+    "FOLDED_TEXT_BORDER_COLOR": null,
+    "GUTTER_BACKGROUND": [
+      "editor.background"
+    ],
+    "HTML_TAG_TREE_LEVEL0": null,
     "HTML_TAG_TREE_LEVEL1": null,
-    "HTML_TAG_TREE_LEVEL2":  null,
+    "HTML_TAG_TREE_LEVEL2": null,
     "HTML_TAG_TREE_LEVEL3": null,
-    "HTML_TAG_TREE_LEVEL4":  null,
+    "HTML_TAG_TREE_LEVEL4": null,
     "HTML_TAG_TREE_LEVEL5": null,
-    "INDENT_GUIDE":  null,
+    "INDENT_GUIDE": [
+      "editorIndentGuide.background"
+    ],
     "INFORMATION_HINT": null,
-    "LINE_NUMBERS_COLOR":  null,
+    "LINE_NUMBERS_COLOR": null,
     "LINE_NUMBER_ON_CARET_ROW_COLOR": null,
-    "METHOD_SEPARATORS_COLOR":  null,
+    "METHOD_SEPARATORS_COLOR": null,
     "MODIFIED_LINES_COLOR": null,
-    "MnemonicIcon.background":  null,
+    "MnemonicIcon.background": null,
     "MnemonicIcon.borderColor": null,
-    "MnemonicIcon.foreground":  null,
+    "MnemonicIcon.foreground": null,
     "NOTIFICATION_BACKGROUND": null,
-    "QUESTION_HINT":  null,
+    "QUESTION_HINT": null,
     "READONLY_BACKGROUND": null,
-    "READONLY_FRAGMENT_BACKGROUND":  null,
+    "READONLY_FRAGMENT_BACKGROUND": null,
     "RECURSIVE_CALL_ATTRIBUTES": null,
-    "RIGHT_MARGIN_COLOR":  null,
+    "RIGHT_MARGIN_COLOR": null,
     "SELECTED_INDENT_GUIDE": null,
-    "SELECTED_TEARLINE_COLOR":  null,
-    "SELECTION_BACKGROUND": null,
-    "SELECTION_FOREGROUND":  null,
+    "SELECTED_TEARLINE_COLOR": null,
+    "SELECTION_BACKGROUND": [
+      "editor.selectionBackground"
+    ],
+    "SELECTION_FOREGROUND": [
+      "editor.selectionForeground"
+    ],
     "SOFT_WRAP_SIGN_COLOR": null,
-    "ScrollBar.Mac.Transparent.hoverThumbBorderColor":  null,
+    "ScrollBar.Mac.Transparent.hoverThumbBorderColor": null,
     "ScrollBar.Mac.Transparent.hoverThumbColor": null,
-    "ScrollBar.Mac.Transparent.hoverTrackColor":  null,
+    "ScrollBar.Mac.Transparent.hoverTrackColor": null,
     "ScrollBar.Mac.Transparent.thumbBorderColor": null,
-    "ScrollBar.Mac.Transparent.thumbColor":  null,
+    "ScrollBar.Mac.Transparent.thumbColor": null,
     "ScrollBar.Mac.Transparent.trackColor": null,
-    "ScrollBar.Mac.hoverThumbBorderColor":  null,
+    "ScrollBar.Mac.hoverThumbBorderColor": null,
     "ScrollBar.Mac.hoverThumbColor": null,
-    "ScrollBar.Mac.hoverTrackColor":  null,
+    "ScrollBar.Mac.hoverTrackColor": null,
     "ScrollBar.Mac.thumbBorderColor": null,
-    "ScrollBar.Mac.thumbColor":  null,
+    "ScrollBar.Mac.thumbColor": null,
     "ScrollBar.Mac.trackColor": null,
-    "ScrollBar.Transparent.hoverThumbBorderColor":  null,
+    "ScrollBar.Transparent.hoverThumbBorderColor": null,
     "ScrollBar.Transparent.hoverThumbColor": null,
-    "ScrollBar.Transparent.hoverTrackColor":  null,
+    "ScrollBar.Transparent.hoverTrackColor": null,
     "ScrollBar.Transparent.thumbBorderColor": null,
-    "ScrollBar.Transparent.thumbColor":  null,
+    "ScrollBar.Transparent.thumbColor": null,
     "ScrollBar.Transparent.trackColor": null,
-    "ScrollBar.background":  null,
+    "ScrollBar.background": null,
     "ScrollBar.hoverThumbBorderColor": null,
-    "ScrollBar.hoverThumbColor":  null,
+    "ScrollBar.hoverThumbColor": null,
     "ScrollBar.hoverTrackColor": null,
-    "ScrollBar.thumbBorderColor":  null,
+    "ScrollBar.thumbBorderColor": null,
     "ScrollBar.thumbColor": null,
-    "ScrollBar.trackColor":  null,
+    "ScrollBar.trackColor": null,
     "TEARLINE_COLOR": null,
-    "VCS_ANNOTATIONS_COLOR_1":  null,
+    "VCS_ANNOTATIONS_COLOR_1": null,
     "VCS_ANNOTATIONS_COLOR_2": null,
-    "VCS_ANNOTATIONS_COLOR_3":  null,
+    "VCS_ANNOTATIONS_COLOR_3": null,
     "VCS_ANNOTATIONS_COLOR_4": null,
-    "VCS_ANNOTATIONS_COLOR_5":  null,
+    "VCS_ANNOTATIONS_COLOR_5": null,
     "WHITESPACES": null,
-    "WHITESPACES_MODIFIED_LINES_COLOR":  null
+    "WHITESPACES_MODIFIED_LINES_COLOR": null
   },
   "attributes": {
     "BAD_CHARACTER": null,
@@ -154,43 +162,101 @@
     "DEBUGGER_INLINED_VALUES": null,
     "DEBUGGER_INLINED_VALUES_EXECUTION_LINE": null,
     "DEBUGGER_INLINED_VALUES_MODIFIED": null,
-    "DEFAULT_ATTRIBUTE": null,
-    "DEFAULT_BLOCK_COMMENT": null,
-    "DEFAULT_BRACES": null,
-    "DEFAULT_BRACKETS": null,
-    "DEFAULT_CLASS_NAME": null,
+    "DEFAULT_ATTRIBUTE": [
+      "attribute"
+    ],
+    "DEFAULT_BLOCK_COMMENT": [
+      "comment"
+    ],
+    "DEFAULT_BRACES": [
+      "braces"
+    ],
+    "DEFAULT_BRACKETS": [
+      "brackets"
+    ],
+    "DEFAULT_CLASS_NAME": [
+      "class"
+    ],
     "DEFAULT_CLASS_REFERENCE": null,
-    "DEFAULT_COMMA": null,
-    "DEFAULT_CONSTANT": null,
+    "DEFAULT_COMMA": [
+      "comma"
+    ],
+    "DEFAULT_CONSTANT": [
+      "constant"
+    ],
     "DEFAULT_DOC_COMMENT": null,
     "DEFAULT_DOC_COMMENT_TAG": null,
     "DEFAULT_DOC_COMMENT_TAG_VALUE": null,
     "DEFAULT_DOC_MARKUP": null,
-    "DEFAULT_DOT": null,
-    "DEFAULT_ENTITY": null,
-    "DEFAULT_FUNCTION_CALL": null,
-    "DEFAULT_FUNCTION_DECLARATION": null,
-    "DEFAULT_GLOBAL_VARIABLE": null,
-    "DEFAULT_IDENTIFIER": null,
-    "DEFAULT_INSTANCE_FIELD": null,
-    "DEFAULT_INSTANCE_METHOD": null,
-    "DEFAULT_INTERFACE_NAME": null,
+    "DEFAULT_DOT": [
+      "dot"
+    ],
+    "DEFAULT_ENTITY": [
+      "entity"
+    ],
+    "DEFAULT_FUNCTION_CALL": [
+      "function"
+    ],
+    "DEFAULT_FUNCTION_DECLARATION": [
+      "function.declaration"
+    ],
+    "DEFAULT_GLOBAL_VARIABLE": [
+      "global"
+    ],
+    "DEFAULT_IDENTIFIER": [
+      "identifier"
+    ],
+    "DEFAULT_INSTANCE_FIELD": [
+      "field"
+    ],
+    "DEFAULT_INSTANCE_METHOD": [
+      "method"
+    ],
+    "DEFAULT_INTERFACE_NAME": [
+      "interface"
+    ],
     "DEFAULT_INVALID_STRING_ESCAPE": null,
-    "DEFAULT_KEYWORD": null,
-    "DEFAULT_LABEL": null,
-    "DEFAULT_LINE_COMMENT": null,
-    "DEFAULT_LOCAL_VARIABLE": null,
+    "DEFAULT_KEYWORD": [
+      "keyword"
+    ],
+    "DEFAULT_LABEL": [
+      "label"
+    ],
+    "DEFAULT_LINE_COMMENT": [
+      "comment"
+    ],
+    "DEFAULT_LOCAL_VARIABLE": [
+      "variable"
+    ],
     "DEFAULT_METADATA": null,
-    "DEFAULT_NUMBER": null,
-    "DEFAULT_OPERATION_SIGN": null,
-    "DEFAULT_PARAMETER": null,
-    "DEFAULT_PARENTHS": null,
+    "DEFAULT_NUMBER": [
+      "number"
+    ],
+    "DEFAULT_OPERATION_SIGN": [
+      "operator"
+    ],
+    "DEFAULT_PARAMETER": [
+      "parameter"
+    ],
+    "DEFAULT_PARENTHS": [
+      "parenthesis"
+    ],
     "DEFAULT_PREDEFINED_SYMBOL": null,
     "DEFAULT_REASSIGNED_LOCAL_VARIABLE": null,
-    "DEFAULT_SEMICOLON": null,
-    "DEFAULT_STATIC_FIELD": null,
-    "DEFAULT_STATIC_METHOD": null,
-    "DEFAULT_STRING": null,
+    "DEFAULT_SEMICOLON": [
+      "semicolon",
+      "colon"
+    ],
+    "DEFAULT_STATIC_FIELD": [
+      "variable.static",
+      "field.static"
+    ],
+    "DEFAULT_STATIC_METHOD": [
+      "method.static"
+    ],
+    "DEFAULT_STRING": [
+      "string"
+    ],
     "DEFAULT_TAG": null,
     "DEFAULT_TEMPLATE_LANGUAGE_COLOR": null,
     "DEFAULT_VALID_STRING_ESCAPE": null,
@@ -217,7 +283,7 @@
     "GENERIC_SERVER_ERROR_OR_WARNING": null,
     "GRID_ERROR_VALUE": null,
     "GRID_IMAGE_VALUE": null,
-    "GRID_NULL_VALUE": null,
+    "GRID_null_VALUE": null,
     "HTML_ATTRIBUTE_NAME": null,
     "HTML_ATTRIBUTE_VALUE": null,
     "HTML_CODE": null,
@@ -402,7 +468,7 @@
     "ReSharper.UNITY_PERFORMANCE_CAMERA_MAIN": null,
     "ReSharper.UNITY_PERFORMANCE_COSTLY_METHOD_HIGHLIGHTER": null,
     "ReSharper.UNITY_PERFORMANCE_COSTLY_METHOD_INVOCATION": null,
-    "ReSharper.UNITY_PERFORMANCE_NULL_COMPARISON": null,
+    "ReSharper.UNITY_PERFORMANCE_null_COMPARISON": null,
     "SASS_BAD_CHARACTER": null,
     "SASS_BRACES": null,
     "SASS_BRACKETS": null,

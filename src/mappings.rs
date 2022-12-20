@@ -1,14 +1,13 @@
-use indexmap::IndexMap;
-
+use bimap::BiMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Mappings<'a> {
-  #[serde(borrow, deserialize_with = "crate::serde_map::skip_nulls_map")]
-  pub colors: IndexMap<&'a str, &'a str>,
+  #[serde(borrow, deserialize_with = "crate::skip_nulls::skip_nulls")]
+  pub colors: BiMap<&'a str, Vec<&'a str>>,
 
-  #[serde(borrow, deserialize_with = "crate::serde_map::skip_nulls_map")]
-  pub attributes: IndexMap<&'a str, &'a str>,
+  #[serde(borrow, deserialize_with = "crate::skip_nulls::skip_nulls")]
+  pub attributes: BiMap<&'a str, Vec<&'a str>>,
 }
 
 const VSCODE_MAPPINGS: &str = include_str!("../mappings/vscode.json");

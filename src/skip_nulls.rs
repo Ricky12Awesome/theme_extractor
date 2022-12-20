@@ -1,4 +1,4 @@
-use std::{hash::Hash, marker::PhantomData};
+use std::marker::PhantomData;
 
 use itertools::Itertools;
 use serde::{
@@ -51,7 +51,7 @@ where
 
 impl<'de, K, V, T> Visitor<'de> for SkipNullsMap<K, V, T>
 where
-  K: Deserialize<'de> + Eq + Hash,
+  K: Deserialize<'de>,
   V: Deserialize<'de>,
   T: FromIterator<(K, V)>,
 {
@@ -66,16 +66,16 @@ where
   where
     M: MapAccess<'de>,
   {
-    MapAccessEntryIter::<'de, M, K, Option<V>>::from(access)
-      .filter_map_ok(|(k, v)| Some((k, v?)))
+    MapAccessEntryIter::<'de, M, Option<K>, Option<V>>::from(access)
+      .filter_map_ok(|(k, v)| Some((k?, v?)))
       .collect()
   }
 }
 
-pub fn skip_nulls_map<'de, D, K, V, T>(deserializer: D) -> Result<T, D::Error>
+pub fn skip_nulls<'de, D, K, V, T>(deserializer: D) -> Result<T, D::Error>
 where
   D: Deserializer<'de>,
-  K: Deserialize<'de> + Eq + Hash,
+  K: Deserialize<'de>,
   V: Deserialize<'de>,
   T: FromIterator<(K, V)>,
 {

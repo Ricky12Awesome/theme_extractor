@@ -2,13 +2,14 @@ use std::{
   borrow::Cow,
   fmt::{Debug, Formatter},
 };
+use std::fmt::Display;
 
 use colored::Colorize;
 use quick_xml::name::QName;
 use serde::Deserialize;
 
 pub mod mappings;
-pub mod serde_map;
+pub mod skip_nulls;
 pub mod theme;
 
 /// `dbg` without formatting multi-line
@@ -33,15 +34,47 @@ macro_rules! dbgl {
 #[derive(Deserialize, Copy, Clone)]
 pub struct Color<'a>(&'a str);
 
+impl <'a> Color<'a> {
+  fn as_hex(&self) -> Option<[u8; 4]> {
+    let str = self.0.trim_start_matches('#');
+    let [r, g, b, a] = u32::from_str_radix(str, 16).ok()?.to_le_bytes();
+
+    match self.0.len() {
+      1 | 2 => Some([r, r, r, 255]),
+      3 | 4 => Some([r, g, g, 255]),
+      5 | 6 => Some([b, g, r, 255]),
+      7 | 8 => Some([a, b, g, r]),
+      _ => None,
+    }
+  }
+}
+
 impl<'a> From<&'a str> for Color<'a> {
   fn from(value: &'a str) -> Self {
     Color(value)
   }
 }
 
+impl <'a> Display for Color<'a> {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    match self.as_hex() {
+      Some([r, g, b, _]) => {
+        if colored::control::SHOULD_COLORIZE.should_colorize() {
+          let c = format!("{}", "".truecolor(r, g, b));
+
+          write!(f, "{}", &c[..c.len() - 4])
+        } else {
+          write!(f, "")
+        }
+      }
+      None => write!(f, ""),
+    }
+  }
+}
+
 impl<'a> Debug for Color<'a> {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    match hex(self.0.trim_start_matches('#')) {
+    match self.as_hex() {
       Some([r, g, b, _]) => {
         if colored::control::SHOULD_COLORIZE.should_colorize() {
           write!(f, "{}", self.0.truecolor(r, g, b))
@@ -51,18 +84,6 @@ impl<'a> Debug for Color<'a> {
       }
       None => write!(f, "{}", self.0),
     }
-  }
-}
-
-fn hex(str: &str) -> Option<[u8; 4]> {
-  let [r, g, b, a] = u32::from_str_radix(str, 16).ok()?.to_le_bytes();
-
-  match str.len() {
-    1 | 2 => Some([r, r, r, 255]),
-    3 | 4 => Some([r, g, g, 255]),
-    5 | 6 => Some([r, g, b, 255]),
-    7 | 8 => Some([r, g, b, a]),
-    _ => None,
   }
 }
 
