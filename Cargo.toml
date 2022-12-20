@@ -13,5 +13,4 @@ colored = "2.0"
 anyhow = "1.0"
 itertools = "0.10"
 enumn = "0.1"
-result = "1.0.0"
-indexmap = "1.9.2"
+indexmap = { version = "1.9.2", features = ["serde"] }

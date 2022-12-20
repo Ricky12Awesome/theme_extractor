@@ -1,7 +1,6 @@
 use std::{hash::Hash, marker::PhantomData};
 
 use itertools::Itertools;
-use result::OptionResultExt;
 use serde::{
   de::{MapAccess, Visitor},
   Deserialize, Deserializer,
@@ -42,7 +41,7 @@ where
   type Item = Result<(K, V), M::Error>;
 
   fn next(&mut self) -> Option<Self::Item> {
-    self.access.next_entry().invert()
+    self.access.next_entry().transpose()
   }
 
   fn size_hint(&self) -> (usize, Option<usize>) {

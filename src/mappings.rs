@@ -1,14 +1,14 @@
-use std::{collections::HashMap, hash::Hash};
+use indexmap::IndexMap;
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Mappings<'a> {
   #[serde(borrow, deserialize_with = "crate::serde_map::skip_nulls_map")]
-  pub colors: HashMap<&'a str, &'a str>,
+  pub colors: IndexMap<&'a str, &'a str>,
 
   #[serde(borrow, deserialize_with = "crate::serde_map::skip_nulls_map")]
-  pub attributes: HashMap<&'a str, &'a str>,
+  pub attributes: IndexMap<&'a str, &'a str>,
 }
 
 const VSCODE_MAPPINGS: &str = include_str!("../mappings/vscode.json");
