@@ -1,10 +1,14 @@
+use theme_extractor::mappings::vscode_mappings;
 use theme_extractor::theme::Theme;
 
 fn main() -> anyhow::Result<()> {
   let source = include_str!("../theme/colorSchemes/RiderMelonDark.xml");
-  let t = Theme::parse(source)?;
+  let theme = Theme::parse(source)?;
+  let mapper = vscode_mappings();
 
-  dbg!(t);
+  for name in mapper.keys() {
+    println!("{name}")
+  }
 
   Ok(())
 }

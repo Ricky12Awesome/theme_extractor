@@ -7,6 +7,8 @@ use colored::Colorize;
 use quick_xml::name::QName;
 use serde::Deserialize;
 
+pub mod mappings;
+pub mod serde_map;
 pub mod theme;
 
 /// `dbg` without formatting multi-line
