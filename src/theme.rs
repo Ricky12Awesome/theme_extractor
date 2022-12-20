@@ -91,7 +91,7 @@ pub enum ThemeEvent<'a> {
 }
 
 impl<'a> ThemeReader<'a> {
-  pub fn from(_src: &'a str) -> Self {
+  pub fn from_str(_src: &'a str) -> Self {
     Self {
       _src,
       in_colors: false,
@@ -174,7 +174,7 @@ impl<'a> Theme<'a> {
   pub fn parse(str: &'a str) -> anyhow::Result<Self> {
     let mut theme = Self::default();
 
-    for e in ThemeReader::from(str) {
+    for e in ThemeReader::from_str(str) {
       match e {
         ThemeEvent::Color(name, color) => {
           theme.colors.insert(name, color);

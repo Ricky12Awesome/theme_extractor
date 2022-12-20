@@ -71,6 +71,9 @@ pub(crate) trait QuickXmlAsStr<'a, 'b: 'a> {
   /// so this converts them back to `&str`
   /// but the problem is lifetimes and borrowing
   /// so there is literally no way to guarantee safety (like [std::str::from_utf8])
+  /// but should be fine since it will always be valid UTF8
+  /// since it's part of a string slice
+  /// and that string slice will always live longer
   unsafe fn as_str(&'a self) -> &'b str;
 }
 
