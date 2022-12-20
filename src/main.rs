@@ -3,11 +3,11 @@ use theme_extractor::theme::Theme;
 
 fn main() -> anyhow::Result<()> {
   let source = include_str!("../theme/colorSchemes/RiderMelonDark.xml");
-  let theme = Theme::parse(source)?;
-  let mapper = vscode_mappings();
+  let _theme = Theme::parse(source)?;
+  let mappings = vscode_mappings();
 
-  for name in mapper.keys() {
-    println!("{name}")
+  for name in mappings.attributes.keys() {
+    println!("{name}");
   }
 
   Ok(())

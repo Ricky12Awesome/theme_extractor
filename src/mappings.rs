@@ -2,18 +2,19 @@ use std::{collections::HashMap, hash::Hash};
 
 use serde::{Deserialize, Serialize};
 
-pub type Mappings<'a> = HashMap<&'a str, &'a str>;
-
 #[derive(Serialize, Deserialize)]
-struct MappingsSerde<'a> {
-  #[serde(flatten, borrow, deserialize_with = "crate::serde_map::skip_nulls_map")]
-  mappings: Mappings<'a>,
+pub struct Mappings<'a> {
+  #[serde(borrow, deserialize_with = "crate::serde_map::skip_nulls_map")]
+  pub colors: HashMap<&'a str, &'a str>,
+
+  #[serde(borrow, deserialize_with = "crate::serde_map::skip_nulls_map")]
+  pub attributes: HashMap<&'a str, &'a str>,
 }
 
 const VSCODE_MAPPINGS: &str = include_str!("../mappings/vscode.json");
 
 pub fn from_json_str(str: &str) -> serde_json::Result<Mappings<'_>> {
-  serde_json::from_str::<MappingsSerde>(str).map(|parsed| parsed.mappings)
+  serde_json::from_str(str)
 }
 
 pub fn vscode_mappings() -> Mappings<'static> {

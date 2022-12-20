@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+use indexmap::IndexMap;
 use quick_xml::{
   events::{attributes::Attribute, Event},
   Reader,
@@ -9,8 +8,8 @@ use crate::{Color, QuickXmlAsStr};
 
 #[derive(Debug, Clone, Default)]
 pub struct Theme<'a> {
-  pub colors: HashMap<&'a str, Color<'a>>,
-  pub attributes: HashMap<&'a str, ThemeAttribute<'a>>,
+  pub colors: IndexMap<&'a str, Color<'a>>,
+  pub attributes: IndexMap<&'a str, ThemeAttribute<'a>>,
 }
 
 #[derive(Debug, Clone, Copy, Default, enumn::N)]
@@ -91,6 +90,8 @@ pub enum ThemeEvent<'a> {
 }
 
 impl<'a> ThemeReader<'a> {
+  /// because of lifetime, can't use trait
+  #[allow(clippy::should_implement_trait)]
   pub fn from_str(_src: &'a str) -> Self {
     Self {
       _src,
