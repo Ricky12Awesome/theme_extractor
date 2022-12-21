@@ -1,18 +1,22 @@
+use std::{collections::HashMap, path::Path};
+
 use indexmap::IndexMap;
 use quick_xml::{
   events::{attributes::Attribute, Event},
   Reader,
 };
+use serde::{Deserialize, Serialize};
 
-use crate::{mappings::Mappings, Color, QuickXmlAsStr};
+use crate::{Color, QuickXmlAsStr};
 
 #[derive(Debug, Clone, Default)]
 pub struct JBColorScheme<'a> {
+  _sources: Vec<String>,
   pub colors: IndexMap<&'a str, Color<'a>>,
   pub attributes: IndexMap<&'a str, JBAttribute<'a>>,
 }
 
-#[derive(Debug, Clone, Copy, Default, enumn::N)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, enumn::N)]
 #[repr(u32)]
 pub enum FontType {
   Bold = 1,
@@ -23,7 +27,7 @@ pub enum FontType {
   None = 0,
 }
 
-#[derive(Debug, Clone, Copy, Default, enumn::N)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, enumn::N)]
 #[repr(u32)]
 pub enum EffectType {
   Underscored = 0,
@@ -37,23 +41,45 @@ pub enum EffectType {
   None,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct JBAttribute<'a> {
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct JBAttributeData<'a> {
+  #[serde(borrow)]
   pub foreground: Option<Color<'a>>,
+  #[serde(borrow)]
   pub background: Option<Color<'a>>,
+  #[serde(borrow)]
   pub effect_color: Option<Color<'a>>,
+  #[serde(borrow)]
   pub error_stripe_color: Option<Color<'a>>,
   pub effect_type: EffectType,
   pub font_type: FontType,
 }
 
+#[derive(Debug, Clone, Default)]
+pub enum JBAttribute<'a> {
+  BaseAttribute(&'a str),
+  Data(JBAttributeData<'a>),
+
+  #[default]
+  None,
+}
+
 impl<'a> JBAttribute<'a> {
+  fn inner_data_mut_ref(&mut self) -> &mut JBAttributeData<'a> {
+    match self {
+      Self::Data(data) => data,
+      _ => unreachable!(),
+    }
+  }
+
   fn set(&mut self, key: &str, value: &'a str) {
+    let data = self.inner_data_mut_ref();
+
     match key {
-      "BACKGROUND" => self.background = Some(Color::from(value)),
-      "FOREGROUND" => self.foreground = Some(Color::from(value)),
+      "BACKGROUND" => data.background = Some(Color::from(value)),
+      "FOREGROUND" => data.foreground = Some(Color::from(value)),
       "FONT_TYPE" => {
-        self.font_type = value
+        data.font_type = value
           .parse::<u32>()
           .map(FontType::n)
           .ok()
@@ -61,15 +87,15 @@ impl<'a> JBAttribute<'a> {
           .unwrap_or_default();
       }
       "EFFECT_TYPE" => {
-        self.effect_type = value
+        data.effect_type = value
           .parse::<u32>()
           .map(EffectType::n)
           .ok()
           .flatten()
           .unwrap_or_default();
       }
-      "EFFECT_COLOR" => self.effect_color = Some(Color::from(value)),
-      "ERROR_STRIPE_COLOR" => self.error_stripe_color = Some(Color::from(value)),
+      "EFFECT_COLOR" => data.effect_color = Some(Color::from(value)),
+      "ERROR_STRIPE_COLOR" => data.error_stripe_color = Some(Color::from(value)),
       _ => {}
     }
   }
@@ -112,7 +138,7 @@ impl<'a> JBColorSchemeReader<'a> {
           let Attribute { value: name, .. } = e.try_get_attribute(b"name").ok()??;
 
           self.option = Some(name.as_str());
-          self.attribute = Some(JBAttribute::default());
+          self.attribute = Some(JBAttribute::Data(JBAttributeData::default()));
         },
         _ => {}
       },
@@ -135,6 +161,18 @@ impl<'a> JBColorSchemeReader<'a> {
           let color = color.as_str();
 
           return Some(Some(JBColorSchemeType::Color(name, Color::from(color))));
+        },
+        b"option" if self.in_attributes && self.option.is_none() => unsafe {
+          let Attribute { value: name, .. } = e.try_get_attribute(b"name").ok()??;
+          let Attribute { value: base, .. } = e.try_get_attribute(b"baseAttributes").ok()??;
+
+          let name = name.as_str();
+          let base = base.as_str();
+
+          return Some(Some(JBColorSchemeType::Attribute(
+            name,
+            JBAttribute::BaseAttribute(base),
+          )));
         },
         b"option" if self.in_attributes => unsafe {
           if let Some(attribute) = &mut self.attribute {
@@ -172,41 +210,65 @@ impl<'a> Iterator for JBColorSchemeReader<'a> {
 }
 
 impl<'a> JBColorScheme<'a> {
-  pub fn parse(str: &'a str) -> anyhow::Result<Self> {
-    let mut theme = Self::default();
+  pub fn read_file(&mut self, path: impl AsRef<Path>) -> anyhow::Result<()> {
+    let string = std::fs::read_to_string(path)?;
 
+    self.read_string(string)
+  }
+
+  pub fn read_string(&mut self, string: String) -> anyhow::Result<()> {
+    self._sources.push(string);
+
+    let str = self._sources[self._sources.len() - 1].as_str();
+
+    unsafe {
+      // Complains not living along enough and borrowing data while mutating
+      // will never die since _sources is just a holder to keep it alive
+      // and it's elements will never be removed
+      self.read_str(std::mem::transmute(str))
+    }
+  }
+
+  pub fn read_str(&mut self, str: &'a str) -> anyhow::Result<()> {
     for e in JBColorSchemeReader::from_str(str) {
       match e {
         JBColorSchemeType::Color(name, color) => {
-          theme.colors.insert(name, color);
+          self.colors.insert(name, color);
         }
         JBColorSchemeType::Attribute(option, value) => {
-          theme.attributes.insert(option, value);
+          self.attributes.insert(option, value);
         }
       }
     }
 
+    Ok(())
+  }
+
+  pub fn parse(str: &'a str) -> anyhow::Result<Self> {
+    let mut theme = Self::default();
+
+    theme.read_str(str)?;
+
     Ok(theme)
   }
 
-  pub fn get_attribute(&'a self, mappings: &Mappings, name: &str) -> Option<&'a JBAttribute<'a>> {
-    let (&name, _) = mappings
+  pub fn get_attributes(&self) -> HashMap<&'a str, &'a JBAttributeData> {
+    self
       .attributes
       .iter()
-      .find(|(_, possible_names)| possible_names.contains(&name))?;
-
-    self.attributes.get(name)
+      .filter_map(|(&k, v)| Some((k, self.get_attribute_data(v)?)))
+      .collect()
   }
 
-  pub fn get_attribute_fg(&'a self, mappings: &Mappings, name: &str) -> Option<Color<'a>> {
-    self.get_attribute(mappings, name)?.foreground
+  fn get_attribute_data(&self, attr: &'a JBAttribute) -> Option<&'a JBAttributeData> {
+    match attr {
+      JBAttribute::BaseAttribute(name) => self.get_attribute(name),
+      JBAttribute::Data(data) => Some(data),
+      JBAttribute::None => None,
+    }
   }
 
-  pub fn get_attributes_fg_unwrap<const N: usize>(
-    &'a self,
-    mappings: &Mappings,
-    names: [&str; N],
-  ) -> [Color<'a>; N] {
-    names.map(|name| self.get_attribute_fg(mappings, name).expect(name))
+  pub fn get_attribute(&self, attr: &str) -> Option<&'a JBAttributeData> {
+    self.get_attribute_data(self.attributes.get(attr)?)
   }
 }

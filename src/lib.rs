@@ -1,13 +1,13 @@
 use std::{
   borrow::Cow,
-  fmt::{Debug, Formatter},
+  fmt::{Debug, Display, Formatter},
 };
-use std::fmt::Display;
 
 use colored::Colorize;
 use quick_xml::name::QName;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
+pub mod colored_json;
 pub mod mappings;
 pub mod skip_nulls;
 pub mod theme;
@@ -31,10 +31,10 @@ macro_rules! dbgl {
   };
 }
 
-#[derive(Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone)]
 pub struct Color<'a>(&'a str);
 
-impl <'a> Color<'a> {
+impl<'a> Color<'a> {
   fn as_hex(&self) -> Option<[u8; 4]> {
     let str = self.0.trim_start_matches('#');
     let [r, g, b, a] = u32::from_str_radix(str, 16).ok()?.to_le_bytes();
@@ -55,7 +55,7 @@ impl<'a> From<&'a str> for Color<'a> {
   }
 }
 
-impl <'a> Display for Color<'a> {
+impl<'a> Display for Color<'a> {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     match self.as_hex() {
       Some([r, g, b, _]) => {
